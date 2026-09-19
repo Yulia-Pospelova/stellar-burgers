@@ -1,8 +1,15 @@
-import { getUserApi } from '@api';
+import {
+  getUserApi,
+  loginUserApi,
+  logoutApi,
+  registerUserApi,
+  updateUserApi,
+} from '@api';
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 
-import { getCookie } from '@utils/cookie';
+import { deleteCookie, getCookie, setCookie } from '@utils/cookie';
 
+import type { TLoginData, TRegisterData } from '@api';
 import type { TUser } from '@utils-types';
 
 type TUserState = {
@@ -10,9 +17,19 @@ type TUserState = {
   isAuthChecked: boolean;
 };
 
+type TTokens = {
+  accessToken: string;
+  refreshToken: string;
+};
+
 const initialState: TUserState = {
   user: null,
   isAuthChecked: false,
+};
+
+const saveTokens = ({ accessToken, refreshToken }: TTokens): void => {
+  setCookie('accessToken', accessToken);
+  localStorage.setItem('refreshToken', refreshToken);
 };
 
 export const checkUserAuth = createAsyncThunk(
@@ -26,6 +43,38 @@ export const checkUserAuth = createAsyncThunk(
     return data.user;
   }
 );
+
+export const registerUser = createAsyncThunk(
+  'user/register',
+  async (registerData: TRegisterData): Promise<TUser> => {
+    const data = await registerUserApi(registerData);
+    saveTokens(data);
+    return data.user;
+  }
+);
+
+export const loginUser = createAsyncThunk(
+  'user/login',
+  async (loginData: TLoginData): Promise<TUser> => {
+    const data = await loginUserApi(loginData);
+    saveTokens(data);
+    return data.user;
+  }
+);
+
+export const updateUser = createAsyncThunk(
+  'user/update',
+  async (userData: Partial<TRegisterData>): Promise<TUser> => {
+    const data = await updateUserApi(userData);
+    return data.user;
+  }
+);
+
+export const logoutUser = createAsyncThunk('user/logout', async (): Promise<void> => {
+  await logoutApi();
+  deleteCookie('accessToken');
+  localStorage.removeItem('refreshToken');
+});
 
 export const userSlice = createSlice({
   name: 'user',
@@ -47,6 +96,18 @@ export const userSlice = createSlice({
       .addCase(checkUserAuth.rejected, (state) => {
         state.user = null;
         state.isAuthChecked = true;
+      })
+      .addCase(registerUser.fulfilled, (state, action) => {
+        state.user = action.payload;
+      })
+      .addCase(loginUser.fulfilled, (state, action) => {
+        state.user = action.payload;
+      })
+      .addCase(updateUser.fulfilled, (state, action) => {
+        state.user = action.payload;
+      })
+      .addCase(logoutUser.fulfilled, (state) => {
+        state.user = null;
       });
   },
 });

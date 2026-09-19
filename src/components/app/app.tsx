@@ -16,15 +16,20 @@ import {
   Register,
   ResetPassword,
 } from '@pages';
+import {
+  fetchIngredients,
+  selectIngredients,
+  selectIngredientsError,
+  selectIngredientsLoading,
+} from '@slices/ingredients-slice';
 import { checkUserAuth } from '@slices/user-slice';
 import { Preloader } from '@ui';
 import { useEffect } from 'react';
 import { Routes, Route, useLocation, useMatch, useNavigate } from 'react-router-dom';
 
-import { useDispatch } from '@services/store';
+import { useDispatch, useSelector } from '@services/store';
 
 import type { AppContentProps, DetailPageProps, TLocationState } from './type';
-import type { TIngredient } from '@utils-types';
 
 import '../../index.css';
 
@@ -32,14 +37,14 @@ import styles from './app.module.css';
 
 const App = (): React.JSX.Element => {
   const dispatch = useDispatch();
+  const ingredients = useSelector(selectIngredients);
+  const isIngredientsLoading = useSelector(selectIngredientsLoading);
+  const ingredientsError = useSelector(selectIngredientsError);
 
   useEffect(() => {
+    void dispatch(fetchIngredients());
     void dispatch(checkUserAuth());
   }, []);
-
-  const ingredients: TIngredient[] = [];
-  const isIngredientsLoading = false;
-  const ingredientsError = null;
 
   return (
     <div className={styles.app}>
