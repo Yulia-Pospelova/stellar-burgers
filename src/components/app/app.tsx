@@ -48,7 +48,7 @@ const App = (): React.JSX.Element => {
   useEffect(() => {
     void dispatch(fetchIngredients());
     void dispatch(checkUserAuth());
-  }, []);
+  }, [dispatch]);
 
   return (
     <div className={styles.app}>

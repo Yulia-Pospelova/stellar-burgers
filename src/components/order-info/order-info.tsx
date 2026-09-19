@@ -16,7 +16,7 @@ export const OrderInfo = (): React.JSX.Element => {
 
   useEffect(() => {
     void dispatch(fetchOrderByNumber(Number(number)));
-  }, [number]);
+  }, [dispatch, number]);
 
   /**
    * использование useMemo не обязательно

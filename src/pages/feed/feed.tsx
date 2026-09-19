@@ -11,7 +11,7 @@ export const Feed = (): React.JSX.Element => {
 
   useEffect(() => {
     void dispatch(fetchFeeds());
-  }, []);
+  }, [dispatch]);
 
   const handleGetFeeds = (): void => {
     void dispatch(fetchFeeds());
