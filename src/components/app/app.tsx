@@ -36,6 +36,9 @@ import '../../index.css';
 
 import styles from './app.module.css';
 
+const orderNumberLength = 6;
+const ingredientDetailsTitle = 'Детали ингредиента';
+
 const App = (): React.JSX.Element => {
   const dispatch = useDispatch();
   const ingredients = useSelector(selectIngredients);
@@ -98,7 +101,7 @@ const RouteComponent = (): React.JSX.Element => {
   const feedOrderMatch = useMatch('/feed/:number');
   const profileOrderMatch = useMatch('/profile/orders/:number');
   const orderNumber = (feedOrderMatch ?? profileOrderMatch)?.params.number ?? '';
-  const orderTitle = `#${orderNumber.padStart(6, '0')}`;
+  const orderTitle = `#${orderNumber.padStart(orderNumberLength, '0')}`;
 
   const handleModalClose = (): void => {
     void navigate(-1);
@@ -120,7 +123,7 @@ const RouteComponent = (): React.JSX.Element => {
         <Route
           path="/ingredients/:id"
           element={
-            <DetailPage title="Детали ингредиента">
+            <DetailPage title={ingredientDetailsTitle}>
               <IngredientDetails />
             </DetailPage>
           }
@@ -199,7 +202,7 @@ const RouteComponent = (): React.JSX.Element => {
           <Route
             path="/ingredients/:id"
             element={
-              <Modal title="Детали ингредиента" onClose={handleModalClose}>
+              <Modal title={ingredientDetailsTitle} onClose={handleModalClose}>
                 <IngredientDetails />
               </Modal>
             }
