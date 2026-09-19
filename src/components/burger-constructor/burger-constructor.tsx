@@ -23,12 +23,12 @@ export const BurgerConstructor = (): React.JSX.Element | null => {
   const orderModalData = useSelector(selectOrderModalData);
 
   const onOrderClick = (): void => {
-    if (!constructorItems.bun || orderRequest) return;
-
     if (!user) {
       void navigate('/login');
       return;
     }
+
+    if (!constructorItems.bun || orderRequest) return;
 
     const { bun, ingredients } = constructorItems;
     void dispatch(
