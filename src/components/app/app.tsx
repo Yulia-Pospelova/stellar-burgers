@@ -1,9 +1,25 @@
-import { AppHeader } from '@components';
-import { ConstructorPage } from '@pages';
+import {
+  AppHeader,
+  IngredientDetails,
+  Modal,
+  OrderInfo,
+  ProtectedRoute,
+} from '@components';
+import {
+  ConstructorPage,
+  Feed,
+  ForgotPassword,
+  Login,
+  NotFound404,
+  Profile,
+  ProfileOrders,
+  Register,
+  ResetPassword,
+} from '@pages';
 import { Preloader } from '@ui';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, useLocation, useMatch, useNavigate } from 'react-router-dom';
 
-import type { AppContentProps } from './type';
+import type { AppContentProps, DetailPageProps, TLocationState } from './type';
 import type { TIngredient } from '@utils-types';
 
 import '../../index.css';
@@ -59,11 +75,138 @@ const AppContent = ({
 };
 
 const RouteComponent = (): React.JSX.Element => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const backgroundLocation = (location.state as TLocationState)?.background;
+
+  const feedOrderMatch = useMatch('/feed/:number');
+  const profileOrderMatch = useMatch('/profile/orders/:number');
+  const orderNumber = (feedOrderMatch ?? profileOrderMatch)?.params.number ?? '';
+  const orderTitle = `#${orderNumber.padStart(6, '0')}`;
+
+  const handleModalClose = (): void => {
+    void navigate(-1);
+  };
+
   return (
     <>
-      <Routes>
+      <Routes location={backgroundLocation ?? location}>
         <Route path="/" element={<ConstructorPage />} />
+        <Route path="/feed" element={<Feed />} />
+        <Route
+          path="/feed/:number"
+          element={
+            <DetailPage title={orderTitle}>
+              <OrderInfo />
+            </DetailPage>
+          }
+        />
+        <Route
+          path="/ingredients/:id"
+          element={
+            <DetailPage title="Детали ингредиента">
+              <IngredientDetails />
+            </DetailPage>
+          }
+        />
+        <Route
+          path="/login"
+          element={
+            <ProtectedRoute onlyUnAuth>
+              <Login />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/register"
+          element={
+            <ProtectedRoute onlyUnAuth>
+              <Register />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/forgot-password"
+          element={
+            <ProtectedRoute onlyUnAuth>
+              <ForgotPassword />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/reset-password"
+          element={
+            <ProtectedRoute onlyUnAuth>
+              <ResetPassword />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <Profile />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/profile/orders"
+          element={
+            <ProtectedRoute>
+              <ProfileOrders />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/profile/orders/:number"
+          element={
+            <ProtectedRoute>
+              <DetailPage title={orderTitle}>
+                <OrderInfo />
+              </DetailPage>
+            </ProtectedRoute>
+          }
+        />
+        <Route path="*" element={<NotFound404 />} />
       </Routes>
+
+      {backgroundLocation && (
+        <Routes>
+          <Route
+            path="/feed/:number"
+            element={
+              <Modal title={orderTitle} onClose={handleModalClose}>
+                <OrderInfo />
+              </Modal>
+            }
+          />
+          <Route
+            path="/ingredients/:id"
+            element={
+              <Modal title="Детали ингредиента" onClose={handleModalClose}>
+                <IngredientDetails />
+              </Modal>
+            }
+          />
+          <Route
+            path="/profile/orders/:number"
+            element={
+              <ProtectedRoute>
+                <Modal title={orderTitle} onClose={handleModalClose}>
+                  <OrderInfo />
+                </Modal>
+              </ProtectedRoute>
+            }
+          />
+        </Routes>
+      )}
     </>
   );
 };
+
+const DetailPage = ({ title, children }: DetailPageProps): React.JSX.Element => (
+  <main className={styles.detailPageWrap}>
+    <h1 className={`${styles.detailHeader} text text_type_main-large`}>{title}</h1>
+    {children}
+  </main>
+);
