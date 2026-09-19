@@ -4,6 +4,7 @@ import {
   ProfileIcon,
   Logo,
 } from '@krgaa/react-developer-burger-ui-components';
+import { clsx } from 'clsx';
 import { NavLink } from 'react-router-dom';
 
 import type { TAppHeaderUIProps } from './type';
@@ -11,7 +12,7 @@ import type { TAppHeaderUIProps } from './type';
 import styles from './app-header.module.css';
 
 const getLinkClassName = ({ isActive }: { isActive: boolean }): string =>
-  `${styles.link} ${isActive ? styles.link_active : ''}`;
+  clsx(styles.link, isActive && styles.link_active);
 
 export const AppHeaderUI = ({ userName }: TAppHeaderUIProps): React.JSX.Element => (
   <header className={styles.header}>

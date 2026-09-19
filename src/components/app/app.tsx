@@ -24,6 +24,7 @@ import {
 } from '@slices/ingredients-slice';
 import { checkUserAuth } from '@slices/user-slice';
 import { Preloader } from '@ui';
+import { clsx } from 'clsx';
 import { useEffect } from 'react';
 import { Routes, Route, useLocation, useMatch, useNavigate } from 'react-router-dom';
 
@@ -221,7 +222,9 @@ const RouteComponent = (): React.JSX.Element => {
 
 const DetailPage = ({ title, children }: DetailPageProps): React.JSX.Element => (
   <main className={styles.detailPageWrap}>
-    <h1 className={`${styles.detailHeader} text text_type_main-large`}>{title}</h1>
+    <h1 className={clsx(styles.detailHeader, 'text', 'text_type_main-large')}>
+      {title}
+    </h1>
     {children}
   </main>
 );
