@@ -1,9 +1,16 @@
+import { selectUser } from '@slices/user-slice';
 import { BurgerConstructorUI } from '@ui';
 import { useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
+
+import { useSelector } from '@services/store';
 
 import type { TConstructorIngredient, TConstructorState, TOrder } from '@utils-types';
 
 export const BurgerConstructor = (): React.JSX.Element | null => {
+  const navigate = useNavigate();
+  const user = useSelector(selectUser);
+
   /** TODO: Взять переменные constructorItems, orderRequest и orderModalData из стора */
   const constructorItems: TConstructorState = {
     bun: null,
@@ -14,6 +21,12 @@ export const BurgerConstructor = (): React.JSX.Element | null => {
 
   const onOrderClick = (): void => {
     if (!constructorItems.bun || orderRequest) return;
+
+    if (!user) {
+      void navigate('/login');
+      return;
+    }
+
     // TODO: Оформить заказ
   };
 
