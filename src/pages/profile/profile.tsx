@@ -1,24 +1,27 @@
+import { selectUser, updateUser } from '@slices/user-slice';
 import { ProfileUI } from '@ui-pages';
 import { type SyntheticEvent, useEffect, useState } from 'react';
 
+import { useDispatch, useSelector } from '@services/store';
+
+import type { SerializedError } from '@reduxjs/toolkit';
+
 export const Profile = (): React.JSX.Element => {
-  /** TODO: Взять переменную из стора */
-  const user = {
-    name: '',
-    email: '',
-  };
+  const dispatch = useDispatch();
+  const user = useSelector(selectUser);
+  const [updateUserError, setUpdateUserError] = useState<string>();
 
   const [formValue, setFormValue] = useState({
-    name: user.name,
-    email: user.email,
+    name: user?.name ?? '',
+    email: user?.email ?? '',
     password: '',
   });
 
   useEffect(() => {
     setFormValue((prevState) => ({
       ...prevState,
-      name: user?.name || '',
-      email: user?.email || '',
+      name: user?.name ?? '',
+      email: user?.email ?? '',
     }));
   }, [user]);
 
@@ -29,13 +32,20 @@ export const Profile = (): React.JSX.Element => {
 
   const handleSubmit = (e: SyntheticEvent): void => {
     e.preventDefault();
+
+    setUpdateUserError(undefined);
+    const { name, email, password } = formValue;
+    void dispatch(updateUser(password ? { name, email, password } : { name, email }))
+      .unwrap()
+      .then(() => setFormValue((prevState) => ({ ...prevState, password: '' })))
+      .catch((err: SerializedError) => setUpdateUserError(err.message));
   };
 
   const handleCancel = (e: SyntheticEvent): void => {
     e.preventDefault();
     setFormValue({
-      name: user.name,
-      email: user.email,
+      name: user?.name ?? '',
+      email: user?.email ?? '',
       password: '',
     });
   };
@@ -51,6 +61,7 @@ export const Profile = (): React.JSX.Element => {
     <ProfileUI
       formValue={formValue}
       isFormChanged={isFormChanged}
+      updateUserError={updateUserError}
       handleCancel={handleCancel}
       handleSubmit={handleSubmit}
       handleInputChange={handleInputChange}
