@@ -27,6 +27,9 @@ const addIngredient = async (page: Page, name: string): Promise<void> => {
 
 const getModal = (page: Page): Locator => page.locator('#modals');
 
+const getNutritionValue = (modal: Locator, label: string): Locator =>
+  modal.locator('li').filter({ hasText: label }).locator('p').nth(1);
+
 test.beforeEach(async ({ context, page }) => {
   await page.routeFromHAR(harPath('ingredients.har'), { url: '**/api/ingredients' });
   await page.routeFromHAR(harPath('user.har'), { url: '**/api/auth/user' });
@@ -83,10 +86,16 @@ test.describe('модальное окно ингредиента', () => {
     const modal = getModal(page);
 
     await expect(modal).toContainText(filling.name);
-    await expect(modal).toContainText(String(filling.calories));
-    await expect(modal).toContainText(String(filling.proteins));
-    await expect(modal).toContainText(String(filling.fat));
-    await expect(modal).toContainText(String(filling.carbohydrates));
+    await expect(getNutritionValue(modal, 'Калории, ккал')).toHaveText(
+      String(filling.calories)
+    );
+    await expect(getNutritionValue(modal, 'Белки, г')).toHaveText(
+      String(filling.proteins)
+    );
+    await expect(getNutritionValue(modal, 'Жиры, г')).toHaveText(String(filling.fat));
+    await expect(getNutritionValue(modal, 'Углеводы, г')).toHaveText(
+      String(filling.carbohydrates)
+    );
     await expect(modal).not.toContainText(bunName);
   });
 

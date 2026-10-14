@@ -55,14 +55,20 @@ describe('редьюсер слайса burgerConstructor', () => {
     expect(state.ingredients[0].id).not.toBe(state.ingredients[1].id);
   });
 
-  it('removeIngredient: удаляет начинку по id', () => {
+  it('removeIngredient: удаляет выбранную начинку и сохраняет остальные', () => {
     const stateWithMain = reducer(initialState, addIngredient(mockMain));
-    const state = reducer(
-      stateWithMain,
-      removeIngredient(stateWithMain.ingredients[0].id)
-    );
+    const stateWithSauce = reducer(stateWithMain, addIngredient(mockSauce));
+    const stateWithThree = reducer(stateWithSauce, addIngredient(mockMain));
+    const [first, second, third] = stateWithThree.ingredients;
 
-    expect(state.ingredients).toEqual([]);
+    const state = reducer(stateWithThree, removeIngredient(second.id));
+
+    expect(state.ingredients).toHaveLength(2);
+    expect(state.ingredients.map((item) => item.id)).toEqual([first.id, third.id]);
+    expect(state.ingredients.map((item) => item._id)).toEqual([
+      mockMain._id,
+      mockMain._id,
+    ]);
   });
 
   it('moveIngredient: меняет порядок начинок', () => {
